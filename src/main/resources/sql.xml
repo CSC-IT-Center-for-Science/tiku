@@ -96,7 +96,7 @@ left join amor_%2$s.meta_ref_id_map using (ref)
 	union all
 	select 
 	   subject, hydra, added_meta_hydra, run_id, summary_id, 'summary'
-       from amor_%1$s.amor_summaries
+       from public.amor_summaries ('%1$s')
        join amor_%1$s.meta_hydra using (run_id)
        join amor_%1$s.meta_state using (run_id)
        where state = ?
@@ -117,7 +117,7 @@ left join amor_%2$s.meta_ref_id_map using (ref)
 	union all
 	select 
 	   subject, hydra, added_meta_hydra, run_id, summary_id, 'summary'
-       from amor_%1$s.amor_summaries
+       from public.amor_summaries ('%1$s')
        join amor_%1$s.meta_hydra using (run_id)
        join amor_%1$s.meta_state using (run_id)
        where 
@@ -136,7 +136,7 @@ left join amor_%2$s.meta_ref_id_map using (ref)
 	    union all
 	    select 
 	       subject, hydra, added_meta_hydra, run_id, summary_id, 'summary', state
-	       from amor_%1$s.amor_summaries
+	       from public.amor_summaries (%1$s)
 	       join amor_%1$s.meta_hydra using (run_id)
            join amor_%1$s.meta_state using (run_id)
     ) d
@@ -160,7 +160,7 @@ with x as
 	  summary_id logical_name,
 	  added_meta_hydra,
 	  row_number() over (partition by subject, hydra, summary_id order by run_id desc) rn
-	from amor_%1$s.amor_summaries
+	from public.amor_summaries ('%1$s')
 	join amor_%1$s.meta_hydra using (run_id)
 	join amor_%1$s.meta_state using (run_id)
 	join amor_%1$s.meta_table using (run_id)

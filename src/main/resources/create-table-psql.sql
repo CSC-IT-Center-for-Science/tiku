@@ -1,5 +1,5 @@
 CREATE SCHEMA amor_prod;
-SET SCHEMA amor_prod;
+SET SCHEMA 'amor_prod';
 
 CREATE TABLE meta_hydra
 (
@@ -42,7 +42,7 @@ CREATE TABLE amor_prod.meta_map_in_use
   map_id integer NOT NULL,
   run_id bigint NOT NULL,
   CONSTRAINT meta_map_in_use_pkey PRIMARY KEY (map_id, run_id)
-)
+);
 
 CREATE TABLE user_log
 (
@@ -85,15 +85,15 @@ CREATE OR REPLACE VIEW meta_table_current AS
 NATURAL JOIN meta_table;
 
 
-CREATE TABLE public.template_summary
+CREATE TABLE template_summary
 (
   run_id bigint,
   summary_id text,
   summary_xml text
 );
 
-CREATE OR REPLACE FUNCTION public.amor_summaries(p_schemaname text)
-  RETURNS SETOF public.template_summary AS
+CREATE OR REPLACE FUNCTION amor_summaries(p_schemaname text)
+  RETURNS SETOF template_summary AS
 $BODY$
   DECLARE
     hydra record;
