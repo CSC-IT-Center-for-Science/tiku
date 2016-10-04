@@ -136,7 +136,7 @@ left join amor_%2$s.meta_ref_id_map using (ref)
 	    union all
 	    select 
 	       subject, hydra, added_meta_hydra, run_id, summary_id, 'summary', state
-	       from public.amor_summaries (%1$s)
+	       from public.amor_summaries ('%1$s')
 	       join amor_%1$s.meta_hydra using (run_id)
            join amor_%1$s.meta_state using (run_id)
     ) d
