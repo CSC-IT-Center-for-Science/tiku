@@ -85,6 +85,7 @@ CREATE OR REPLACE VIEW meta_table_current AS
 NATURAL JOIN meta_table;
 
 
+SET SCHEMA 'public';
 CREATE TABLE template_summary
 (
   run_id bigint,
