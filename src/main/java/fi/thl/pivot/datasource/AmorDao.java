@@ -80,7 +80,8 @@ public class AmorDao {
         }
 
         protected String createHydraName(Report input) {
-            return String.format("%s.%s.%s.%s", input.getSubject(), input.getHydra(), input.getFact(), input.getRunId());
+            return String.format("%s.%s.%s.%s", input.getSubject(), input.getHydra(), input.getFact(),
+                    input.getRunId());
         }
     }
 
@@ -108,7 +109,8 @@ public class AmorDao {
 
         @Override
         public HydraSource apply(Report input) {
-            HydraSource source = new JDBCSource(createHydraName(input), input.getFact(), jdbcTemplate.getDataSource(), queries, createFactName(input),
+            HydraSource source = new JDBCSource(createHydraName(input), input.getFact(), jdbcTemplate.getDataSource(),
+                    queries, createFactName(input),
                     createTreeName(input), createMetaName(input), schema);
             source.setRunDate(input.getAdded());
             return source;
@@ -126,19 +128,17 @@ public class AmorDao {
     @Qualifier("queries")
     private Properties queries;
 
-    private Cache<String, HydraSource> sourceCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
+    private Cache<String, HydraSource> sourceCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES)
+            .build();
 
     @AuditedMethod
     public List<Report> listReports(String environment) {
         Preconditions.checkArgument(checkEnvironment(environment), "IllegalEnvironment " + environment);
-        return jdbcTemplate.query(String.format(queries.getProperty("list-reports"), schema), new ReportMapper(), environment, environment);
+        return jdbcTemplate.query(String.format(queries.getProperty("list-reports"), schema), new ReportMapper(),
+                environment, environment);
     }
 
-    @AuditedMethod
-    public List<Report> listReports(String environment, String runid) {
-        Preconditions.checkArgument(checkEnvironment(environment), "IllegalEnvironment " + environment);
-        return jdbcTemplate.query(String.format(queries.getProperty("list-reports-in-run"), schema), new ReportMapper(), environment, environment);
-    }
+   
 
     /**
      * Lists reports within the given amor subject. Used to provide a quick way
@@ -157,7 +157,8 @@ public class AmorDao {
         return jdbcTemplate.query(String.format(queries.getProperty("list-summary-name"), schema), new ReportMapper() {
             @Override
             public Report mapRow(ResultSet rs, int arg1) throws SQLException {
-                String id = String.format("%s.%s.%s", rs.getString("run_id"), rs.getString("hydra"), rs.getString("id"));
+                String id = String.format("%s.%s.%s", rs.getString("run_id"), rs.getString("hydra"),
+                        rs.getString("id"));
                 if (!reports.containsKey(id)) {
                     reports.put(id, super.mapRow(rs, arg1));
                 }
@@ -183,13 +184,15 @@ public class AmorDao {
      *            The fact table within the hydra
      * @return
      */
-    public Report loadLatestReport(final String environment, final String subject, final String hydra, final String fact) {
+    public Report loadLatestReport(final String environment, final String subject, final String hydra,
+            final String fact) {
         Preconditions.checkArgument(checkEnvironment(environment), "IllegalEnvironment");
         Preconditions.checkNotNull(subject, "No subject specified");
         Preconditions.checkNotNull(hydra, "No hydra specified");
         Preconditions.checkNotNull(fact, "No fact specified");
 
-        List<Report> reports = jdbcTemplate.query(String.format(queries.getProperty("load-latest-report"), schema), new ReportMapper(), subject, hydra, fact,
+        List<Report> reports = jdbcTemplate.query(String.format(queries.getProperty("load-latest-report"), schema),
+                new ReportMapper(), subject, hydra, fact,
                 environment);
         return reports.isEmpty() ? null : reports.get(0);
     }
@@ -199,7 +202,9 @@ public class AmorDao {
         Preconditions.checkNotNull(fact, "No fact specified");
         Preconditions.checkNotNull(runId, "No run id specified");
 
-        return jdbcTemplate.query(String.format(queries.getProperty("load-cube-metadata"), "amor_" + schema + ".x" + runId + "_meta"), new TupleMapper(), fact);
+        return jdbcTemplate.query(
+                String.format(queries.getProperty("load-cube-metadata"), "amor_" + schema + ".x" + runId + "_meta"),
+                new TupleMapper(), fact);
     }
 
     @AuditedMethod
@@ -212,7 +217,8 @@ public class AmorDao {
         Preconditions.checkArgument(params.length <= ID_ELEMENT_COUNT, "Invalid id provided");
         String latestRunId = determineReportVersion(environment, params);
 
-        List<Summary> summaries = jdbcTemplate.query(String.format("select * from amor_%1$s.x%2$s_amor_summary where summary_id = ?", schema, latestRunId),
+        List<Summary> summaries = jdbcTemplate.query(
+                String.format("select * from amor_%1$s.x%2$s_amor_summary where summary_id = ?", schema, latestRunId),
                 new RowMapper<Summary>() {
 
                     @Override
@@ -241,7 +247,8 @@ public class AmorDao {
         Preconditions.checkNotNull(id, "No source id provided");
 
         String[] params = id.split(ID_SEPARATOR);
-        Preconditions.checkArgument(params.length <= ID_ELEMENT_COUNT, "Invalid id provided " + Lists.newArrayList(params));
+        Preconditions.checkArgument(params.length <= ID_ELEMENT_COUNT,
+                "Invalid id provided " + Lists.newArrayList(params));
 
         String latestRunId = determineReportVersion(environment, params);
         id = id.replaceAll("latest", latestRunId);
@@ -251,7 +258,8 @@ public class AmorDao {
             return cached;
         }
 
-        List<HydraSource> sources = jdbcTemplate.query(String.format(queries.getProperty("list-sources"), schema), new ResultSetToSource(), params[0],
+        List<HydraSource> sources = jdbcTemplate.query(String.format(queries.getProperty("list-sources"), schema),
+                new ResultSetToSource(), params[0],
                 params[1], params[2], Long.parseLong(latestRunId), environment);
 
         if (sources.size() == 1) {
@@ -297,11 +305,6 @@ public class AmorDao {
         return Lists.transform(listReports(environment), new ReportToSource());
     }
 
-    @AuditedMethod
-    public List<HydraSource> listSources(final String environment, final String subject) {
-        Preconditions.checkArgument(checkEnvironment(environment), "IllegalEnvironment");
-        return Lists.transform(listReports(environment, subject), new ReportToSource());
-    }
 
     private boolean checkEnvironment(String environment) {
         return Constants.VALID_ENVIRONMENTS.contains(environment);
@@ -317,9 +320,7 @@ public class AmorDao {
      * @return
      */
     public String replaceFactInIdentifier(String id, String factTable) {
-
         String[] params = id.split(ID_SEPARATOR);
-
         if (params.length == ID_ELEMENT_COUNT) {
             return Joiner.on(".").join(params[0], params[1], factTable, params[3]);
         } else {

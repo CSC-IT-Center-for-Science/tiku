@@ -713,7 +713,7 @@ public abstract class HydraSource {
                 return n;
             }
         }
-        return findNodeByRefInLevel(level.getChildLevel(), item);
+        return findNodeByNameInLevel(level.getChildLevel(), item, language);
     }
 
 }

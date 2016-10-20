@@ -49,7 +49,7 @@ where
    )
  ]]></entry>
 	<entry key="traverse-tree-using-bfs"><![CDATA[
-with recursive bfs_tree as (
+with recursive bfs_tree  (key, parent_key, dim, stage, ref) as (
     select 
         key,
         parent_key,
@@ -60,7 +60,7 @@ with recursive bfs_tree as (
         %1$s
     where
         parent_key is null
-    union all
+    union
     select
         c.key,
         c.parent_key,
